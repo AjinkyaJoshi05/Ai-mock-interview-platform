@@ -30,7 +30,7 @@ An intelligent mock interview platform designed to help users practice technical
 
 ### AI Integration
 
-* Claude API / LLM-based responses
+* Gemini API / LLM-based responses
 
 ### Tools
 
