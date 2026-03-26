@@ -11,7 +11,7 @@ const generateQuestion = async (role) => {
 
         const prompt = `You are a technical interviewer.
         Ask ONE interview question for a ${role} role.
-        Keep it concise.`;
+        Keep it concise. start with a moderate/beginner friendly question`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -34,20 +34,37 @@ const generateQuestion = async (role) => {
 //   return "Tell me about yourself.";
 };
 
-const evaluateAnswer = async (question, answer) => {
+const evaluateAnswer = async (question, answer, history) => {
   // simple mock logic for now
-
+    const historyText = history.map((item,index)=>{
+        `
+        Q${index + 1}: ${item.question}
+        A${index + 1}: ${item.answer}
+        `
+    }).join("\n");
     try {
         const model = genAI.getGenerativeModel({model: "gemini-2.5-flash"});
-        const prompt = `You are a strict technical interviewer.
-        Question: ${question}
+        const prompt = `You are a professional technical interviewer.
+        Previous conversation:
+        ${historyText}
+
+        Current Question: ${question}
         Candidate Answer: ${answer}
+
+        Evaluate the answer fairly (not overly strict).
+
+        Rules:
+        - Give balanced evaluation (mention both strengths and weaknesses)
+        - Do NOT be overly harsh
+        - Provide constructive feedback with hints for improvement
+        - If answer is partially correct, reward it appropriately
+
 
         Respond ONLY in JSON format:
         {
             "score": number (0-10),
-            "feedback": "short feedback",
-            "nextQuestion": "next interview question"
+            "feedback": "2-3 lines of feedback",
+            "nextQuestion": "next relevant question"
         }
     `;
 
