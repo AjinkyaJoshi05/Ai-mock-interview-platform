@@ -5,17 +5,26 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [started, setStarted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [report, setReport] = useState(null);
 
   const startInterview = async () => {
-    const res = await axios.post("http://localhost:5000/api/interview/start", {
-      role: "backend",
-      difficulty: "medium"
-    });
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/interview/start",
+        {
+          role: "backend",
+          difficulty: "medium"
+        }
+      );
 
-    const question = res.data.data.question;
+      const question = res.data.data.question;
 
-    setMessages([{ sender: "AI", text: question }]);
-    setStarted(true);
+      setMessages([{ sender: "AI", text: question }]);
+      setStarted(true);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const sendAnswer = async () => {
@@ -24,47 +33,138 @@ function App() {
     const userMessage = { sender: "You", text: input };
     setMessages((prev) => [...prev, userMessage]);
 
-    const res = await axios.post("http://localhost:5000/api/interview/answer", {
-      answer: input
-    });
+    setLoading(true);
 
-    const { feedback, nextQuestion } = res.data.data;
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/interview/answer",
+        {
+          answer: input
+        }
+      );
 
-    const aiMessage = {
-      sender: "AI",
-      text: `${feedback}\n\nNext: ${nextQuestion}`
-    };
+      // Handle interview end
+      if (res.data.end) {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "AI", text: "Interview completed 🎉" }
+        ]);
+        return;
+      }
 
-    setMessages((prev) => [...prev, aiMessage]);
-    setInput("");
+      const { feedback, nextQuestion, score } = res.data.data;
+
+      const aiMessage = {
+        sender: "AI",
+        text: `Score: ${score}/10\n\n${feedback}\n\nNext: ${nextQuestion}`
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+      setInput("");
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
   };
 
+  const getReport = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/interview/report"
+      );
+
+      setReport(res.data.data);
+    } catch (error) {
+        console.error(error);
+    }
+  };
   return (
     <div style={{ padding: "20px" }}>
-      <h2>AI Mock Interview</h2>
+      <div style={{ maxWidth: "600px", margin: "auto" }}>
+        <h2 style={{ textAlign: "center" }}>AI Mock Interview</h2>
 
-      {!started && (
-        <button onClick={startInterview}>Start Interview</button>
-      )}
-
-      <div style={{ marginTop: "20px" }}>
-        {messages.map((msg, i) => (
-          <div key={i}>
-            <b>{msg.sender}:</b> {msg.text}
+        {/* Start Screen */}
+        {!started && (
+          <div style={{ textAlign: "center", marginTop: "50px" }}>
+            <button onClick={startInterview} style={{ padding: "15px" }}>
+              Start Interview
+            </button>
           </div>
-        ))}
-      </div>
+        )}
 
-      {started && (
-        <>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your answer..."
-          />
-          <button onClick={sendAnswer}>Send</button>
-        </>
+        {/* Chat Messages */}
+        <div style={{ marginTop: "20px" }}>
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent:
+                  msg.sender === "You" ? "flex-end" : "flex-start",
+                marginBottom: "10px"
+              }}
+            >
+              <div
+                style={{
+                  padding: "10px",
+                  borderRadius: "10px",
+                  maxWidth: "70%",
+                  backgroundColor:
+                    msg.sender === "You" ? "#4CAF50" : "#f1f1f1",
+                  color: msg.sender === "You" ? "white" : "black"
+                }}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div style={{ textAlign: "left", marginBottom: "10px" }}>
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  backgroundColor: "#f1f1f1"
+                }}
+              >
+                AI is typing...
+              </div>
+            </div>
+              )}
+        </div>
+
+        {/* Input Box */}
+        {started && (
+          <div style={{ display: "flex", marginTop: "20px" }}>
+            <input
+              style={{ flex: 1, padding: "10px" }}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your answer..."
+            />
+            <button onClick={sendAnswer} style={{ padding: "10px" }}>
+              Send
+            </button>
+          </div>
+        )}
+        {started && (
+        <div style={{ marginTop: "10px", textAlign: "center" }}>
+          <button onClick={getReport} style={{ padding: "10px" }}>
+            Get Final Report
+          </button>
+        </div>
       )}
+      {report && (
+        <div style={{ marginTop: "30px", padding: "15px", border: "1px solid #ccc" }}>
+          <h3>Interview Report</h3>
+          <p><b>Overall Score:</b> {report.overallScore}</p>
+          <p><b>Strengths:</b> {report.strengths}</p>
+          <p><b>Weaknesses:</b> {report.weaknesses}</p>
+          <p><b>Suggestions:</b> {report.suggestions}</p>
+        </div>
+      )}
+      </div>  
     </div>
   );
 }
