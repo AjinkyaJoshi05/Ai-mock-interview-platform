@@ -21,9 +21,11 @@ const startInterview = async (req, res) => {
     };
 
     res.json({
-      "sucess":true,
-      "question":{question}
-    });
+    success: true,
+    data: {
+      question
+    }
+  });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Something went wrong" });
@@ -40,8 +42,9 @@ const submitAnswer = async (req, res) => {
 
     if (interviewState.history.length >= 10) {
       return res.json({
-        message: "Interview completed",
-        end: true
+        success: true,
+        end: true,
+        message: "Interview completed"
       });
     }
 
@@ -63,9 +66,12 @@ const submitAnswer = async (req, res) => {
 
     // res.json(result);
     res.json({
-      "success" : true,
-      "result" : result
-    })
+      success: true,
+      data: {
+        ...result,
+        questionNumber: interviewState.questionNumber
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Something went wrong" });
