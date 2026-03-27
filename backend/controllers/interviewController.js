@@ -86,6 +86,7 @@ const getReport = async(req,res) => {
     }
 
     const report = await generateReport(history);
+    console.log("report generated")
     res.json({
       "success" : true,
       "report" : report
