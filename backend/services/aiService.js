@@ -6,6 +6,43 @@ dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 // console.log(process.env.GEMINI_API_KEY)
 
+// helper function for handling API errors
+
+const callGemini = async (payload) => {
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      payload
+    );
+
+    return response.data;
+
+  } catch (error) {
+    if (error.response?.status === 429) {
+      console.log("Rate limit hit. Retrying...");
+
+      // wait 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      try {
+        const retryResponse = await axios.post(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          payload
+        );
+
+        return retryResponse.data;
+
+      } catch (retryError) {
+        console.log("Retry failed");
+
+        throw retryError;
+      }
+    }
+
+    throw error;
+  }
+};
+
 const generateQuestion = async (role,difficulty) => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -125,21 +162,33 @@ const generateReport = async(history) =>{
             "suggestions": "how to improve"
             }
         `
+        const payload = {
+            contents: [
+                {
+                parts: [{ text: prompt }]
+                }
+            ]
+        };
+        const response = await callGemini(payload);
 
-        const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-            {
-                contents : [
-                    {
-                        parts: [{text : prompt}]
-                    }
-                ]
-            }
-        );
-
-        const text = response.data.candidates[0].content.parts[0].text;
+        const text = response.candidates[0].content.parts[0].text;
         const cleanText = text.replace(/```json|```/g, "").trim();
-        return JSON.parse(cleanText);
+        let parsed;
+
+        try {
+            parsed = JSON.parse(cleanText);
+        } catch {
+            console.log("JSON parse failed, using fallback");
+
+            parsed = {
+                overallScore: 6,
+                strengths: "Basic understanding",
+                weaknesses: "Needs more structured answers",
+                suggestions: "Practice explaining with examples"
+            };
+        }
+
+return parsed;
         
     } catch (error) {
         console.error(error);
