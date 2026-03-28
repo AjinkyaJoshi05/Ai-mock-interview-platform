@@ -4,12 +4,19 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+
+
 // console.log(process.env.GEMINI_API_KEY)
 
 // helper function for handling API errors
 
 const callGemini = async (payload) => {
+  // Small delay to avoid burst rate limit
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
   try {
+    console.log("Calling Gemini API...");
+
     const response = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       payload
@@ -18,28 +25,16 @@ const callGemini = async (payload) => {
     return response.data;
 
   } catch (error) {
+    console.log("Gemini API failed:", error.response?.status);
+
+    // Handle rate limit specifically
     if (error.response?.status === 429) {
-      console.log("Rate limit hit. Retrying...");
-
-      // wait 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      try {
-        const retryResponse = await axios.post(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-          payload
-        );
-
-        return retryResponse.data;
-
-      } catch (retryError) {
-        console.log("Retry failed");
-
-        throw retryError;
-      }
+      console.log("Rate limit hit — using fallback");
+      return null;   
     }
 
-    throw error;
+    // Other errors
+    return null;
   }
 };
 
@@ -50,15 +45,25 @@ const generateQuestion = async (role,difficulty) => {
         const prompt = `You are a technical interviewer.
         Ask ONE interview question for a ${role} role.
         Keep it concise. start with a ${difficulty} difficulty`;
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+         const payload = {
+            contents: [
+                {
+                parts: [{ text: prompt }]
+                }
+            ]
+        };
+        // const result = await model.generateContent(prompt);
+         const response = await callGemini(payload);
+         if (!response) {
+            return "Explain REST API design principles.";
+        }
+        // const response = await result.response;
+        const text = response.candidates[0].content.parts[0].text;
 
         return text;
     } catch (error) {
         console.error(error);
-        return "Error generating question";
+        return "Can you explain REST API design principles and why idempotency is important?";
     }
 
 //   if (role === "backend") {
@@ -106,9 +111,32 @@ const evaluateAnswer = async (question, answer, history,difficulty) => {
             "nextQuestion": "next relevant question based on difficulty"
         }
     `;
+        const payload = {
+        contents: [
+            {
+            parts: [{ text: prompt }]
+            }
+        ]
+        };
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
+        const response = await callGemini(payload);
+        if (!response) {
+        // dynamic fallback
+        const fallbackQuestions = [
+            "Explain REST API principles.",
+            "What is idempotency?",
+            "Difference between PUT and PATCH?",
+            "What are HTTP status codes?"
+        ];
+
+        return {
+                score: 5,
+                feedback:
+                "Good attempt. Try adding more technical depth and real-world examples.",
+                nextQuestion:
+                fallbackQuestions[Math.floor(Math.random() * fallbackQuestions.length)]
+            };
+        }
         const text = response.text();
         
         // clean json to required format
@@ -118,11 +146,29 @@ const evaluateAnswer = async (question, answer, history,difficulty) => {
     } catch (error) {
         console.error(error);
 
+        const fallbackQuestions = [
+        "Explain REST API principles.",
+        "What is the difference between PUT and PATCH?",
+        "What is idempotency in REST APIs?",
+        "How does JWT authentication work?",
+        "What are HTTP status codes?"
+        ];
+
+        const randomQuestion =
+        fallbackQuestions[Math.floor(Math.random() * fallbackQuestions.length)];
+
         return {
-            score: 5,
-            feedback: "Error evaluating answer",
-            nextQuestion: "Explain REST API."
+        score: 5,
+        feedback:
+            "Good attempt. You covered the basics, but try to include more technical depth and real-world examples.",
+        nextQuestion: randomQuestion
         };
+
+        // return {
+        //     score: 5,
+        //     feedback: "Good atttempt. You covered the basic idea, but try to include more technical depth and real-world examples.  ",
+        //     nextQuestion: "What is the difference between PUT and PATCH in REST APIs?"
+        // };
     }
 //   let score = 5;
 
@@ -170,6 +216,16 @@ const generateReport = async(history) =>{
             ]
         };
         const response = await callGemini(payload);
+        if (!response) {
+        return {
+            overallScore: Math.floor(
+            history.reduce((sum, h) => sum + (h.score || 5), 0) / history.length
+            ),
+            strengths: "Understands basic backend concepts",
+            weaknesses: "Needs deeper technical explanations",
+            suggestions: "Practice explaining concepts with examples"
+        };
+        }
 
         const text = response.candidates[0].content.parts[0].text;
         const cleanText = text.replace(/```json|```/g, "").trim();

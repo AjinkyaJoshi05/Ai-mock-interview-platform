@@ -9,6 +9,7 @@ function App() {
   const [report, setReport] = useState(null);
 
   const startInterview = async () => {
+    setLoading(true);
     try {
       const res = await axios.post(
         "http://localhost:5000/api/interview/start",
@@ -25,6 +26,7 @@ function App() {
     } catch (error) {
       console.error(error);
     }
+    setLoading(false);
   };
 
   const sendAnswer = async () => {
@@ -68,6 +70,7 @@ function App() {
   };
 
   const getReport = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(
         "http://localhost:5000/api/interview/report"
@@ -77,95 +80,113 @@ function App() {
     } catch (error) {
         console.error(error);
     }
+    setLoading(false);
   };
   return (
-    <div style={{ padding: "20px" }}>
-      <div style={{ maxWidth: "600px", margin: "auto" }}>
-        <h2 style={{ textAlign: "center" }}>AI Mock Interview</h2>
+    <div style={{ padding: "20px", backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ maxWidth: "600px", margin: "auto" }}>
+      <h2 style={{ textAlign: "center" }}>AI Mock Interview</h2>
 
-        {/* Start Screen */}
-        {!started && (
-          <div style={{ textAlign: "center", marginTop: "50px" }}>
-            <button onClick={startInterview} style={{ padding: "15px" }}>
-              Start Interview
-            </button>
-          </div>
-        )}
+      {/* Start Screen */}
+      {!started && (
+        <div style={{ textAlign: "center", marginTop: "50px" }}>
+          <button onClick={startInterview} style={{ padding: "15px 25px" }}>
+            Start Interview
+          </button>
+        </div>
+      )}
 
-        {/* Chat Messages */}
-        <div style={{ marginTop: "20px" }}>
-          {messages.map((msg, i) => (
+      {/* Chat Messages */}
+      <div style={{ marginTop: "20px" }}>
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              justifyContent:
+                msg.sender === "You" ? "flex-end" : "flex-start",
+              marginBottom: "10px"
+            }}
+          >
             <div
-              key={i}
               style={{
-                display: "flex",
-                justifyContent:
-                  msg.sender === "You" ? "flex-end" : "flex-start",
-                marginBottom: "10px"
+                padding: "10px",
+                borderRadius: "10px",
+                maxWidth: "70%",
+                backgroundColor:
+                  msg.sender === "You" ? "#4CAF50" : "#e0e0e0",
+                color: msg.sender === "You" ? "white" : "black"
               }}
             >
-              <div
-                style={{
-                  padding: "10px",
-                  borderRadius: "10px",
-                  maxWidth: "70%",
-                  backgroundColor:
-                    msg.sender === "You" ? "#4CAF50" : "#f1f1f1",
-                  color: msg.sender === "You" ? "white" : "black"
-                }}
-              >
-                {msg.text}
-              </div>
+              {msg.text}
             </div>
-          ))}
-          {loading && (
-            <div style={{ textAlign: "left", marginBottom: "10px" }}>
-              <div
-                style={{
-                  display: "inline-block",
-                  padding: "10px",
-                  borderRadius: "10px",
-                  backgroundColor: "#f1f1f1"
-                }}
-              >
-                AI is typing...
-              </div>
-            </div>
-              )}
-        </div>
+          </div>
+        ))}
 
-        {/* Input Box */}
-        {started && (
-          <div style={{ display: "flex", marginTop: "20px" }}>
-            <input
-              style={{ flex: 1, padding: "10px" }}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your answer..."
-            />
-            <button onClick={sendAnswer} style={{ padding: "10px" }}>
-              Send
-            </button>
+        {/* Loading Indicator */}
+        {loading && (
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <div
+              style={{
+                padding: "10px",
+                borderRadius: "10px",
+                backgroundColor: "#e0e0e0",
+                fontStyle: "italic"
+              }}
+            >
+              AI is typing...
+            </div>
           </div>
         )}
-        {started && (
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
-          <button onClick={getReport} style={{ padding: "10px" }}>
+      </div>
+
+      {/* Input Box */}
+      {started && (
+        <div style={{ display: "flex", marginTop: "20px", gap: "10px" }}>
+          <input
+            style={{ flex: 1, padding: "10px" }}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your answer..."
+          />
+          <button onClick={sendAnswer} disabled={loading} style={{ padding: "10px 15px" }}>
+            Send
+          </button>
+        </div>
+      )}
+
+      {/* Report Button */}
+      {started && (
+        <div style={{ marginTop: "15px", textAlign: "center" }}>
+          <button onClick={getReport} style={{ padding: "10px 20px" }}>
             Get Final Report
           </button>
         </div>
       )}
+
+      {/* Report Section */}
       {report && (
-        <div style={{ marginTop: "30px", padding: "15px", border: "1px solid #ccc" }}>
-          <h3>Interview Report</h3>
+        <div
+          style={{
+            marginTop: "30px",
+            padding: "20px",
+            borderRadius: "10px",
+            backgroundColor: "#f0f8ff",
+            border: "1px solid #4CAF50"
+          }}
+        >
+          <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
+            Interview Report
+          </h3>
+
           <p><b>Overall Score:</b> {report.overallScore}</p>
           <p><b>Strengths:</b> {report.strengths}</p>
           <p><b>Weaknesses:</b> {report.weaknesses}</p>
           <p><b>Suggestions:</b> {report.suggestions}</p>
         </div>
       )}
-      </div>  
     </div>
+  </div>
   );
 }
 

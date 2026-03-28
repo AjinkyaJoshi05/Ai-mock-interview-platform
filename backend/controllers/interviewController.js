@@ -89,7 +89,7 @@ const getReport = async(req,res) => {
     console.log("report generated")
     res.json({
       "success" : true,
-      "report" : report
+      "data" : report
     })
   } catch (error){
     console.error(error);
