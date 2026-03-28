@@ -8,14 +8,17 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
 
+  const [role, setRole] = useState("backend");
+  const [difficulty, setDifficulty] = useState("medium");
+
   const startInterview = async () => {
     setLoading(true);
     try {
       const res = await axios.post(
         "http://localhost:5000/api/interview/start",
         {
-          role: "backend",
-          difficulty: "medium"
+          role,
+          difficulty,
         }
       );
 
@@ -89,12 +92,88 @@ function App() {
 
       {/* Start Screen */}
       {!started && (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
-          <button onClick={startInterview} style={{ padding: "15px 25px" }}>
-            Start Interview
-          </button>
-        </div>
-      )}
+  <div
+    style={{
+      maxWidth: "400px",
+      margin: "60px auto",
+      padding: "25px",
+      borderRadius: "12px",
+      backgroundColor: "#ffffff",
+      boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+      textAlign: "center"
+    }}
+  >
+    <h2 style={{ marginBottom: "10px" }}>AI Mock Interview</h2>
+
+    <p style={{ color: "#666", marginBottom: "20px" }}>
+      Select your interview preferences
+    </p>
+
+    {/* Role */}
+    <div style={{ marginBottom: "15px", textAlign: "left" }}>
+      <label style={{ fontWeight: "bold" }}>Role</label>
+      <select
+        value={role}
+        onChange={(e) => setRole(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "10px",
+          marginTop: "5px",
+          borderRadius: "8px",
+          border: "1px solid #ccc"
+        }}
+      >
+        <option value="backend">Backend</option>
+        <option value="frontend">Frontend</option>
+        <option value="fullstack">Full Stack</option>
+        <option value="dsa">DSA</option>
+      </select>
+    </div>
+
+    {/* Difficulty */}
+    <div style={{ marginBottom: "20px", textAlign: "left" }}>
+      <label style={{ fontWeight: "bold" }}>Difficulty</label>
+      <select
+        value={difficulty}
+        onChange={(e) => setDifficulty(e.target.value)}
+        style={{
+          width: "100%",
+          padding: "10px",
+          marginTop: "5px",
+          borderRadius: "8px",
+          border: "1px solid #ccc"
+        }}
+      >
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
+    {/* Button */}
+    <button
+      onClick={startInterview}
+      style={{
+        width: "100%",
+        padding: "12px",
+        borderRadius: "8px",
+        border: "none",
+        backgroundColor: "#4CAF50",
+        color: "white",
+        fontWeight: "bold",
+        cursor: "pointer"
+      }}
+    >
+      Start Interview
+    </button>
+  </div>
+)}
+
+    {started && (
+          <p style={{ textAlign: "center", color: "#555" }}>
+            Role: <b>{role}</b> | Difficulty: <b>{difficulty}</b>
+          </p>
+    )}
 
       {/* Chat Messages */}
       <div style={{ marginTop: "20px" }}>
@@ -122,6 +201,8 @@ function App() {
             </div>
           </div>
         ))}
+
+        
 
         {/* Loading Indicator */}
         {loading && (
