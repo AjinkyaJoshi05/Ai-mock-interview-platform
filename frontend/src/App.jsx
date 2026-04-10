@@ -1,5 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
+import SetupScreen from "./setupScreen";
+import InterviewChat from "./interviewChat";
+
+const API_BASE_URL = "http://localhost:5000/api/interview";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -7,267 +11,160 @@ function App() {
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
+  const [error, setError] = useState("");
+  const [questionCount, setQuestionCount] = useState(1);
+  const [interviewComplete, setInterviewComplete] = useState(false);
 
   const [role, setRole] = useState("backend");
   const [difficulty, setDifficulty] = useState("medium");
 
+  const resetInterview = () => {
+    setMessages([]);
+    setInput("");
+    setStarted(false);
+    setLoading(false);
+    setReport(null);
+    setError("");
+    setQuestionCount(1);
+    setInterviewComplete(false);
+  };
+
   const startInterview = async () => {
     setLoading(true);
+    setError("");
+    setReport(null);
+    setInterviewComplete(false);
+
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/interview/start",
+      const res = await axios.post(`${API_BASE_URL}/start`, {
+        role,
+        difficulty,
+      });
+
+      setMessages([
         {
-          role,
-          difficulty,
-        }
-      );
-
-      const question = res.data.data.question;
-
-      setMessages([{ sender: "AI", text: question }]);
+          sender: "AI",
+          type: "question",
+          text: res.data.data.question,
+        },
+      ]);
+      setQuestionCount(1);
       setStarted(true);
-    } catch (error) {
-      console.error(error);
+      setInput("");
+    } catch (requestError) {
+      console.error(requestError);
+      setError("Could not start the interview. Make sure the backend is running.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const sendAnswer = async () => {
-    if (!input) return;
+    const trimmedInput = input.trim();
+    if (!trimmedInput || loading || interviewComplete) {
+      return;
+    }
 
-    const userMessage = { sender: "You", text: input };
-    setMessages((prev) => [...prev, userMessage]);
-
+    setMessages((prev) => [
+      ...prev,
+      { sender: "You", type: "answer", text: trimmedInput },
+    ]);
+    setInput("");
     setLoading(true);
+    setError("");
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/interview/answer",
-        {
-          answer: input
-        }
-      );
+      const res = await axios.post(`${API_BASE_URL}/answer`, {
+        answer: trimmedInput,
+      });
 
-      // Handle interview end
       if (res.data.end) {
+        setInterviewComplete(true);
         setMessages((prev) => [
           ...prev,
-          { sender: "AI", text: "Interview completed 🎉" }
+          {
+            sender: "AI",
+            type: "system",
+            text: "Interview completed. Review your report or start a fresh session.",
+          },
         ]);
         return;
       }
 
-      const { feedback, nextQuestion, score } = res.data.data;
+      const {
+        feedback,
+        nextQuestion,
+        score,
+        questionNumber: nextQuestionNumber,
+      } = res.data.data;
 
-      const aiMessage = {
-        sender: "AI",
-        text: `Score: ${score}/10\n\n${feedback}\n\nNext: ${nextQuestion}`
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-      setInput("");
-    } catch (error) {
-      console.error(error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "AI",
+          type: "feedback",
+          score,
+          feedback,
+          nextQuestion,
+          text: `${feedback}\n\nNext question: ${nextQuestion}`,
+        },
+      ]);
+      setQuestionCount((prev) => nextQuestionNumber ?? prev + 1);
+    } catch (requestError) {
+      console.error(requestError);
+      setError("Your answer could not be submitted. Please try again.");
+      setInput(trimmedInput);
+      setMessages((prev) => prev.slice(0, -1));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const getReport = async () => {
     setLoading(true);
+    setError("");
+
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/interview/report"
-      );
-
+      const res = await axios.get(`${API_BASE_URL}/report`);
       setReport(res.data.data);
-    } catch (error) {
-        console.error(error);
+    } catch (requestError) {
+      console.error(requestError);
+      setError("No report is available yet. Complete at least one answer first.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
   return (
-    <div style={{ padding: "20px", backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
-    <div style={{ maxWidth: "600px", margin: "auto" }}>
-      <h2 style={{ textAlign: "center" }}>AI Mock Interview</h2>
-
-      {/* Start Screen */}
-      {!started && (
-  <div
-    style={{
-      maxWidth: "400px",
-      margin: "60px auto",
-      padding: "25px",
-      borderRadius: "12px",
-      backgroundColor: "#ffffff",
-      boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-      textAlign: "center"
-    }}
-  >
-    <h2 style={{ marginBottom: "10px" }}>AI Mock Interview</h2>
-
-    <p style={{ color: "#666", marginBottom: "20px" }}>
-      Select your interview preferences
-    </p>
-
-    {/* Role */}
-    <div style={{ marginBottom: "15px", textAlign: "left" }}>
-      <label style={{ fontWeight: "bold" }}>Role</label>
-      <select
-        value={role}
-        onChange={(e) => setRole(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginTop: "5px",
-          borderRadius: "8px",
-          border: "1px solid #ccc"
-        }}
-      >
-        <option value="backend">Backend</option>
-        <option value="frontend">Frontend</option>
-        <option value="fullstack">Full Stack</option>
-        <option value="dsa">DSA</option>
-      </select>
-    </div>
-
-    {/* Difficulty */}
-    <div style={{ marginBottom: "20px", textAlign: "left" }}>
-      <label style={{ fontWeight: "bold" }}>Difficulty</label>
-      <select
-        value={difficulty}
-        onChange={(e) => setDifficulty(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginTop: "5px",
-          borderRadius: "8px",
-          border: "1px solid #ccc"
-        }}
-      >
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-    </div>
-
-    {/* Button */}
-    <button
-      onClick={startInterview}
-      style={{
-        width: "100%",
-        padding: "12px",
-        borderRadius: "8px",
-        border: "none",
-        backgroundColor: "#4CAF50",
-        color: "white",
-        fontWeight: "bold",
-        cursor: "pointer"
-      }}
-    >
-      Start Interview
-    </button>
-  </div>
-)}
-
-    {started && (
-          <p style={{ textAlign: "center", color: "#555" }}>
-            Role: <b>{role}</b> | Difficulty: <b>{difficulty}</b>
-          </p>
-    )}
-
-      {/* Chat Messages */}
-      <div style={{ marginTop: "20px" }}>
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              justifyContent:
-                msg.sender === "You" ? "flex-end" : "flex-start",
-              marginBottom: "10px"
-            }}
-          >
-            <div
-              style={{
-                padding: "10px",
-                borderRadius: "10px",
-                maxWidth: "70%",
-                backgroundColor:
-                  msg.sender === "You" ? "#4CAF50" : "#e0e0e0",
-                color: msg.sender === "You" ? "white" : "black"
-              }}
-            >
-              {msg.text}
-            </div>
-          </div>
-        ))}
-
-        
-
-        {/* Loading Indicator */}
-        {loading && (
-          <div style={{ display: "flex", justifyContent: "flex-start" }}>
-            <div
-              style={{
-                padding: "10px",
-                borderRadius: "10px",
-                backgroundColor: "#e0e0e0",
-                fontStyle: "italic"
-              }}
-            >
-              AI is typing...
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Input Box */}
-      {started && (
-        <div style={{ display: "flex", marginTop: "20px", gap: "10px" }}>
-          <input
-            style={{ flex: 1, padding: "10px" }}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your answer..."
-          />
-          <button onClick={sendAnswer} disabled={loading} style={{ padding: "10px 15px" }}>
-            Send
-          </button>
-        </div>
+    <main className="app-shell">
+      {!started ? (
+        <SetupScreen
+          role={role}
+          setRole={setRole}
+          difficulty={difficulty}
+          setDifficulty={setDifficulty}
+          onStart={startInterview}
+          loading={loading}
+          error={error}
+        />
+      ) : (
+        <InterviewChat
+          messages={messages}
+          input={input}
+          setInput={setInput}
+          onSend={sendAnswer}
+          onGetReport={getReport}
+          onReset={resetInterview}
+          loading={loading}
+          role={role}
+          difficulty={difficulty}
+          questionCount={questionCount}
+          report={report}
+          error={error}
+          interviewComplete={interviewComplete}
+        />
       )}
-
-      {/* Report Button */}
-      {started && (
-        <div style={{ marginTop: "15px", textAlign: "center" }}>
-          <button onClick={getReport} style={{ padding: "10px 20px" }}>
-            Get Final Report
-          </button>
-        </div>
-      )}
-
-      {/* Report Section */}
-      {report && (
-        <div
-          style={{
-            marginTop: "30px",
-            padding: "20px",
-            borderRadius: "10px",
-            backgroundColor: "#f0f8ff",
-            border: "1px solid #4CAF50"
-          }}
-        >
-          <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
-            Interview Report
-          </h3>
-
-          <p><b>Overall Score:</b> {report.overallScore}</p>
-          <p><b>Strengths:</b> {report.strengths}</p>
-          <p><b>Weaknesses:</b> {report.weaknesses}</p>
-          <p><b>Suggestions:</b> {report.suggestions}</p>
-        </div>
-      )}
-    </div>
-  </div>
+    </main>
   );
 }
 
