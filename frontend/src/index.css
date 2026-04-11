@@ -1,7 +1,7 @@
 :root {
-  color: #211d16;
-  background: #f5efe5;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #1f1d19;
+  background: #f3f1ec;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -20,7 +20,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #f5efe5;
+  background: #f3f1ec;
 }
 
 button,
@@ -30,14 +30,7 @@ select {
   font: inherit;
 }
 
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-#root {
-  min-height: 100vh;
-}
-
+#root,
 .app-shell {
   min-height: 100vh;
 }

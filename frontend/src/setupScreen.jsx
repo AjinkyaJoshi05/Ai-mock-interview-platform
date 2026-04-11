@@ -1,197 +1,70 @@
-import React from "react";
-
 const setupStyles = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
   .setup-root {
     min-height: 100vh;
-    display: grid;
-    place-items: center;
     padding: 32px 18px;
-    background:
-      radial-gradient(circle at top left, rgba(242, 103, 34, 0.18), transparent 28%),
-      radial-gradient(circle at bottom right, rgba(17, 138, 178, 0.18), transparent 32%),
-      linear-gradient(135deg, #f7efe2 0%, #f5f7fb 55%, #eef4ef 100%);
-    font-family: 'DM Sans', sans-serif;
+    background: #f3f1ec;
+    color: #181714;
+    font-family: 'Manrope', sans-serif;
   }
 
   .setup-shell {
-    width: min(1120px, 100%);
+    width: min(1080px, 100%);
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-    gap: 24px;
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+    gap: 20px;
+    align-items: start;
   }
 
-  .setup-hero,
-  .setup-panel {
-    border: 1px solid rgba(32, 30, 24, 0.08);
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 24px 60px rgba(24, 24, 19, 0.08);
+  .setup-main,
+  .setup-side {
+    background: #fcfbf8;
+    border: 1px solid #ddd7cd;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(27, 25, 20, 0.04);
   }
 
-  .setup-hero {
-    border-radius: 32px;
-    padding: 36px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 620px;
+  .setup-main {
+    padding: 28px;
   }
 
-  .setup-hero::after {
-    content: "";
-    position: absolute;
-    inset: auto -80px -110px auto;
-    width: 280px;
-    height: 280px;
-    border-radius: 999px;
-    background: linear-gradient(135deg, rgba(242, 103, 34, 0.2), rgba(17, 138, 178, 0.08));
-    filter: blur(8px);
-  }
-
-  .setup-kicker {
+  .setup-eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
+    gap: 8px;
+    padding: 6px 10px;
     border-radius: 999px;
-    background: rgba(17, 138, 178, 0.1);
-    color: #0f617d;
+    background: #efe9de;
+    color: #5f5648;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
-    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
   }
 
-  .setup-kicker-dot {
-    width: 8px;
-    height: 8px;
+  .setup-dot {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: #0f617d;
-    animation: setupPulse 1.6s ease-in-out infinite;
-  }
-
-  @keyframes setupPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.45; transform: scale(0.9); }
-  }
-
-  .setup-heading {
-    max-width: 600px;
-    margin-top: 28px;
+    background: #5f5648;
   }
 
   .setup-title {
-    margin: 0;
-    color: #191610;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(2.5rem, 5vw, 4.6rem);
-    line-height: 0.96;
+    margin: 18px 0 10px;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.02;
     letter-spacing: -0.05em;
-  }
-
-  .setup-subtitle {
-    margin: 18px 0 0;
-    max-width: 560px;
-    color: #5a564d;
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-
-  .setup-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    margin-top: 34px;
-  }
-
-  .setup-stat {
-    padding: 16px;
-    border-radius: 20px;
-    background: rgba(25, 22, 16, 0.04);
-    border: 1px solid rgba(25, 22, 16, 0.06);
-  }
-
-  .setup-stat-label {
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #777167;
-  }
-
-  .setup-stat-value {
-    display: block;
-    margin-top: 8px;
-    color: #191610;
-    font-size: 1.2rem;
     font-weight: 700;
   }
 
-  .setup-feature-list {
-    display: grid;
-    gap: 12px;
-    margin-top: 34px;
-  }
-
-  .setup-feature {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 14px 16px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(25, 22, 16, 0.06);
-  }
-
-  .setup-feature-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 14px;
-    display: grid;
-    place-items: center;
-    background: #191610;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .setup-feature-title {
+  .setup-copy {
     margin: 0;
-    color: #191610;
-    font-weight: 700;
-    font-size: 0.96rem;
-  }
-
-  .setup-feature-copy {
-    margin: 4px 0 0;
-    color: #605b52;
-    line-height: 1.55;
-    font-size: 0.94rem;
-  }
-
-  .setup-panel {
-    border-radius: 28px;
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .setup-panel-head h2 {
-    margin: 0;
-    color: #191610;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: -0.04em;
-  }
-
-  .setup-panel-head p {
-    margin: 10px 0 0;
-    color: #625d54;
+    max-width: 620px;
+    color: #5f584c;
     line-height: 1.65;
+    font-size: 1rem;
   }
 
   .setup-section {
@@ -201,101 +74,94 @@ const setupStyles = `
   .setup-label {
     display: block;
     margin-bottom: 12px;
-    color: #6d685e;
+    color: #70685b;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
-    letter-spacing: 0.12em;
     text-transform: uppercase;
-    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
-  .setup-options {
+  .setup-grid {
     display: grid;
     gap: 12px;
   }
 
-  .setup-options.roles {
+  .setup-grid.roles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .setup-options.difficulty {
+  .setup-grid.difficulty {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .setup-option {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #ddd7cd;
+    border-radius: 16px;
+    background: #ffffff;
     text-align: left;
-    padding: 16px 14px;
-    border-radius: 18px;
-    border: 1px solid rgba(25, 22, 16, 0.1);
-    background: #fff;
     cursor: pointer;
-    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
   }
 
   .setup-option:hover {
-    transform: translateY(-2px);
-    border-color: rgba(25, 22, 16, 0.2);
-    box-shadow: 0 14px 28px rgba(25, 22, 16, 0.08);
+    border-color: #b8ae9d;
+    transform: translateY(-1px);
   }
 
   .setup-option.is-selected {
-    background: linear-gradient(180deg, rgba(17, 138, 178, 0.08), rgba(242, 103, 34, 0.08));
-    border-color: rgba(17, 138, 178, 0.35);
-    box-shadow: 0 16px 30px rgba(17, 138, 178, 0.12);
+    border-color: #181714;
+    background: #f4f0e8;
   }
 
   .setup-option-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: 10px;
   }
 
   .setup-option-title {
-    color: #191610;
+    font-size: 1rem;
     font-weight: 700;
-    font-size: 0.98rem;
+    color: #181714;
+  }
+
+  .setup-option-short {
+    color: #766d61;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
   }
 
   .setup-option-copy {
     margin: 8px 0 0;
-    color: #6b655c;
-    font-size: 0.9rem;
+    color: #615a4f;
     line-height: 1.5;
+    font-size: 0.92rem;
   }
 
-  .setup-pill {
-    min-width: 30px;
-    height: 30px;
-    border-radius: 10px;
-    display: grid;
-    place-items: center;
-    background: rgba(25, 22, 16, 0.06);
-    color: #191610;
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  .setup-action {
+  .setup-actions {
     margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .setup-button {
-    width: 100%;
     border: none;
-    border-radius: 18px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #191610 0%, #2d2a23 100%);
+    border-radius: 16px;
+    padding: 15px 18px;
+    background: #181714;
     color: #fff;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1rem;
+    font: inherit;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 18px 28px rgba(25, 22, 16, 0.2);
-    transition: transform 160ms ease, opacity 160ms ease;
+    transition: opacity 140ms ease, transform 140ms ease;
   }
 
   .setup-button:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .setup-button:disabled {
@@ -304,48 +170,83 @@ const setupStyles = `
     transform: none;
   }
 
-  .setup-footnote {
-    margin-top: 14px;
-    color: #716b61;
-    text-align: center;
-    font-size: 0.92rem;
-  }
-
   .setup-error {
-    margin-top: 14px;
     padding: 12px 14px;
-    border-radius: 16px;
-    background: rgba(183, 45, 49, 0.08);
-    border: 1px solid rgba(183, 45, 49, 0.14);
-    color: #9f2c30;
+    border-radius: 14px;
+    background: #f7e8e7;
+    border: 1px solid #e8c1bf;
+    color: #8b3a35;
     font-size: 0.92rem;
     line-height: 1.5;
   }
 
-  @media (max-width: 980px) {
+  .setup-note {
+    color: #6b6357;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .setup-side {
+    padding: 22px;
+  }
+
+  .setup-side-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .setup-list {
+    margin-top: 18px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .setup-list-item {
+    padding: 14px 0;
+    border-top: 1px solid #e5ded3;
+  }
+
+  .setup-list-item:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .setup-list-label {
+    display: block;
+    color: #746c5f;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .setup-list-value {
+    margin-top: 6px;
+    color: #1f1d19;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 920px) {
     .setup-shell {
       grid-template-columns: 1fr;
-    }
-
-    .setup-hero {
-      min-height: auto;
     }
   }
 
   @media (max-width: 640px) {
     .setup-root {
-      padding: 18px 12px;
+      padding: 14px;
     }
 
-    .setup-hero,
-    .setup-panel {
-      padding: 22px;
-      border-radius: 24px;
+    .setup-main,
+    .setup-side {
+      padding: 18px;
+      border-radius: 18px;
     }
 
-    .setup-grid,
-    .setup-options.roles,
-    .setup-options.difficulty {
+    .setup-grid.roles,
+    .setup-grid.difficulty {
       grid-template-columns: 1fr;
     }
   }
@@ -355,25 +256,25 @@ const ROLES = [
   {
     value: "backend",
     label: "Backend",
-    hint: "APIs, databases, auth, performance",
+    hint: "APIs, databases, authentication, and server-side design.",
     short: "BE",
   },
   {
     value: "frontend",
     label: "Frontend",
-    hint: "React, UI thinking, state, accessibility",
+    hint: "React, state, UI structure, performance, and accessibility.",
     short: "FE",
   },
   {
     value: "fullstack",
     label: "Full Stack",
-    hint: "System tradeoffs across client and server",
+    hint: "Questions that move between client and server tradeoffs.",
     short: "FS",
   },
   {
     value: "dsa",
     label: "DSA",
-    hint: "Problem solving, complexity, patterns",
+    hint: "Problem solving, time complexity, and algorithm patterns.",
     short: "DS",
   },
 ];
@@ -382,19 +283,19 @@ const DIFFICULTIES = [
   {
     value: "easy",
     label: "Easy",
-    hint: "Warm up with fundamentals",
+    hint: "Foundational questions and lighter follow-ups.",
     short: "01",
   },
   {
     value: "medium",
     label: "Medium",
-    hint: "Balanced practical depth",
+    hint: "Balanced difficulty with practical depth.",
     short: "02",
   },
   {
     value: "hard",
     label: "Hard",
-    hint: "Push on edge cases and tradeoffs",
+    hint: "More detailed reasoning and edge-case discussion.",
     short: "03",
   },
 ];
@@ -405,126 +306,87 @@ function SetupScreen({ role, setRole, difficulty, setDifficulty, onStart, loadin
       <style>{setupStyles}</style>
       <section className="setup-root">
         <div className="setup-shell">
-          <div className="setup-hero">
-            <div>
-              <div className="setup-kicker">
-                <span className="setup-kicker-dot" />
-                AI mock interview workspace
-              </div>
+          <div className="setup-main">
+            <div className="setup-eyebrow">
+              <span className="setup-dot" />
+              Mock interview
+            </div>
+            <h1 className="setup-title">Set up your interview round.</h1>
+            <p className="setup-copy">
+              Choose the role and difficulty you want to practice. The session will start with one question,
+              then continue with feedback and follow-up questions based on your answers.
+            </p>
 
-              <div className="setup-heading">
-                <h1 className="setup-title">Practice like the interview already matters.</h1>
-                <p className="setup-subtitle">
-                  Build confidence with realistic technical questions, instant feedback,
-                  and a session flow that feels closer to a real interview than a plain chat box.
-                </p>
-              </div>
-
-              <div className="setup-grid">
-                <div className="setup-stat">
-                  <span className="setup-stat-label">Session mode</span>
-                  <span className="setup-stat-value">Adaptive Q and A</span>
-                </div>
-                <div className="setup-stat">
-                  <span className="setup-stat-label">Feedback loop</span>
-                  <span className="setup-stat-value">Score plus coaching</span>
-                </div>
-                <div className="setup-stat">
-                  <span className="setup-stat-label">Best for</span>
-                  <span className="setup-stat-value">Portfolio prep</span>
-                </div>
+            <div className="setup-section">
+              <span className="setup-label">Role</span>
+              <div className="setup-grid roles">
+                {ROLES.map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    className={`setup-option ${role === item.value ? "is-selected" : ""}`}
+                    onClick={() => setRole(item.value)}
+                  >
+                    <div className="setup-option-top">
+                      <span className="setup-option-title">{item.label}</span>
+                      <span className="setup-option-short">{item.short}</span>
+                    </div>
+                    <p className="setup-option-copy">{item.hint}</p>
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="setup-feature-list">
-              <div className="setup-feature">
-                <div className="setup-feature-icon">01</div>
-                <div>
-                  <p className="setup-feature-title">Role-specific prompts</p>
-                  <p className="setup-feature-copy">
-                    Choose the track you want to practice so the interviewer stays focused on the work you are targeting.
-                  </p>
-                </div>
-              </div>
-              <div className="setup-feature">
-                <div className="setup-feature-icon">02</div>
-                <div>
-                  <p className="setup-feature-title">Immediate feedback</p>
-                  <p className="setup-feature-copy">
-                    Every response comes back with a score, guidance, and the next question to keep momentum high.
-                  </p>
-                </div>
-              </div>
-              <div className="setup-feature">
-                <div className="setup-feature-icon">03</div>
-                <div>
-                  <p className="setup-feature-title">Final interview report</p>
-                  <p className="setup-feature-copy">
-                    End the session with a summary you can actually use to improve your next answer set.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="setup-panel">
-            <div>
-              <div className="setup-panel-head">
-                <h2>Configure your round</h2>
-                <p>
-                  Pick a role and difficulty, then start the interview. Your backend flow stays exactly as it is.
-                </p>
-              </div>
-
-              <div className="setup-section">
-                <span className="setup-label">Role focus</span>
-                <div className="setup-options roles">
-                  {ROLES.map((item) => (
-                    <button
-                      key={item.value}
-                      type="button"
-                      className={`setup-option ${role === item.value ? "is-selected" : ""}`}
-                      onClick={() => setRole(item.value)}
-                    >
-                      <div className="setup-option-top">
-                        <span className="setup-option-title">{item.label}</span>
-                        <span className="setup-pill">{item.short}</span>
-                      </div>
-                      <p className="setup-option-copy">{item.hint}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="setup-section">
-                <span className="setup-label">Difficulty</span>
-                <div className="setup-options difficulty">
-                  {DIFFICULTIES.map((item) => (
-                    <button
-                      key={item.value}
-                      type="button"
-                      className={`setup-option ${difficulty === item.value ? "is-selected" : ""}`}
-                      onClick={() => setDifficulty(item.value)}
-                    >
-                      <div className="setup-option-top">
-                        <span className="setup-option-title">{item.label}</span>
-                        <span className="setup-pill">{item.short}</span>
-                      </div>
-                      <p className="setup-option-copy">{item.hint}</p>
-                    </button>
-                  ))}
-                </div>
+            <div className="setup-section">
+              <span className="setup-label">Difficulty</span>
+              <div className="setup-grid difficulty">
+                {DIFFICULTIES.map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    className={`setup-option ${difficulty === item.value ? "is-selected" : ""}`}
+                    onClick={() => setDifficulty(item.value)}
+                  >
+                    <div className="setup-option-top">
+                      <span className="setup-option-title">{item.label}</span>
+                      <span className="setup-option-short">{item.short}</span>
+                    </div>
+                    <p className="setup-option-copy">{item.hint}</p>
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="setup-action">
+            <div className="setup-actions">
               <button className="setup-button" type="button" onClick={onStart} disabled={loading}>
-                {loading ? "Starting interview..." : "Start interview session"}
+                {loading ? "Starting..." : "Start interview"}
               </button>
               {error ? <div className="setup-error">{error}</div> : null}
-              <p className="setup-footnote">You can request the final report any time after answering at least one question.</p>
+              <div className="setup-note">You can request the final report once you have answered at least one question.</div>
             </div>
           </div>
+
+          <aside className="setup-side">
+            <h2 className="setup-side-title">What this session includes</h2>
+            <div className="setup-list">
+              <div className="setup-list-item">
+                <span className="setup-list-label">Question flow</span>
+                <div className="setup-list-value">A role-specific starting question followed by feedback and the next question.</div>
+              </div>
+              <div className="setup-list-item">
+                <span className="setup-list-label">Evaluation</span>
+                <div className="setup-list-value">Each answer is scored and reviewed so you can see what to improve immediately.</div>
+              </div>
+              <div className="setup-list-item">
+                <span className="setup-list-label">Final summary</span>
+                <div className="setup-list-value">A report with strengths, weaknesses, suggestions, and an overall score.</div>
+              </div>
+              <div className="setup-list-item">
+                <span className="setup-list-label">Best practice</span>
+                <div className="setup-list-value">Answer in a clear structure: main point, example, then tradeoff or edge case.</div>
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
     </>
