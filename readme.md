@@ -106,7 +106,7 @@ RESUME-PROJECT/
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone [<repo-url>](https://github.com/AjinkyaJoshi05/Ai-mock-interview-platform.git)
 cd ai-mock-interview
 ```
 
