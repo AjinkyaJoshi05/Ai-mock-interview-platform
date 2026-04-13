@@ -1,17 +1,19 @@
-# 🎤 AI Mock Interview Platform
+# AI Mock Interview Platform
 
-An intelligent mock interview platform designed to help users practice technical interviews through structured questions, automated evaluation, and real-time interaction.
+An intelligent AI-powered mock interview platform designed to help users practice technical interviews through structured questions, automated evaluation, and real-time interaction.
 
 ---
 
-##  Features
+## 🚀 Features
 
-* **AI-powered question generation**
-* **Domain-based interview practice** (DSA, DBMS, OS, etc.)
-* **Interactive Q&A sessions**
-* **Performance evaluation & feedback**
-* **Multi-turn conversation support**
-* **Web-based interface**
+- 🎯 Role-based interviews (5+ roles)
+- 📊 Difficulty levels (Easy, Medium, Hard)
+- 🤖 LLM-based question generation (Gemini API)
+- 🧠 Context-aware follow-up questions
+- 📈 Scoring system (1–10 per question)
+- 📝 Detailed performance reports
+- 🔁 Retry logic + rate limit handling
+- ⚡ Pre-generated question caching
 
 ---
 
@@ -26,7 +28,7 @@ An intelligent mock interview platform designed to help users practice technical
 ### Frontend
 
 * HTML, CSS, JavaScript
-* (React – optional / planned)
+* React
 
 ### AI Integration
 
@@ -37,25 +39,94 @@ An intelligent mock interview platform designed to help users practice technical
 * Git, GitHub
 * Postman (API testing)
 
----
+--- 
 
-## Project Structure
+## 📂 Project Structure
+
+
+
+
+## 📁 Project Structure
 
 ```
-ai-mock-interview-platform/
-│── backend/
-│   ├── routes/
+RESUME-PROJECT/
+├── backend/
 │   ├── controllers/
-│   ├── models/
+│   ├── node_modules/
+│   ├── routes/
+│   ├── services/
+│   ├── .env
+│   ├── app.js
+│   ├── package-lock.json
+│   ├── package.json
 │   └── server.js
 │
-│── frontend/
+├── frontend/
+│   ├── node_modules/
+│   ├── public/
+│   └── src/
+│       ├── App.jsx
+│       ├── index.css
+│       ├── interviewChat.jsx
+│       ├── main.jsx
+│       └── setupScreen.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
 │   ├── index.html
-│   ├── styles.css
-│   └── script.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   └── vite.config.js
 │
-│── README.md
+├── .gitignore
+└── readme.md
 ```
 
 ---
 
+## ⚡ Key Highlights
+
+- Built an evaluation engine for multi-turn interview sessions (8–10 questions/session)
+- Implemented retry + throttling to handle API rate limits (HTTP 429/503)
+- Designed structured scoring and feedback generation system
+- Developed stateful chat UI for seamless interview flow
+
+---
+
+## 🧠 Learnings
+
+- Working with LLM APIs in production scenarios
+- Handling rate limits and failures gracefully
+- Designing conversational workflows
+- Building evaluation systems for AI outputs
+
+---
+
+## ▶️ Setup & Run
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd ai-mock-interview
+```
+
+### 🖥️ Start Backend
+```bash
+cd backend
+npm install
+node server.js
+```
+
+### 🎨 Start Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## 📌 Future Improvements
+
+- [ ] Add voice-based interviews
+- [ ] Add resume and JD based interviews
+- [ ] Integrate more LLM providers
+- [ ] Improve evaluation accuracy using fine-tuned models
