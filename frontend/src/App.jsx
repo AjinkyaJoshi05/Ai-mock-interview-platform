@@ -3,7 +3,8 @@ import axios from "axios";
 import SetupScreen from "./setupScreen";
 import InterviewChat from "./interviewChat";
 
-const API_BASE_URL = "http://localhost:5000/api/interview";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 function App() {
   const [messages, setMessages] = useState([]);
