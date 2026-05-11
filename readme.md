@@ -4,6 +4,12 @@ An intelligent AI-powered mock interview platform designed to help users practic
 
 ---
 
+# Live site
+
+The site is live on:
+https://ai-mock-interview-platform-azure.vercel.app/
+
+
 ## 🚀 Features
 
 - 🎯 Role-based interviews (5+ roles)
@@ -38,12 +44,6 @@ An intelligent AI-powered mock interview platform designed to help users practic
 
 * Git, GitHub
 * Postman (API testing)
-
---- 
-
-## 📂 Project Structure
-
-
 
 
 ## 📁 Project Structure
